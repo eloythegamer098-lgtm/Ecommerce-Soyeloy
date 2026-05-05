@@ -1,5 +1,5 @@
 
-//Middleware Logger con id unico por peticion
+
 
 export function loggerDetallado(req,res,next){
     const inicio = Date.now();
@@ -14,7 +14,7 @@ export function loggerDetallado(req,res,next){
     next();
 }
 
-// Valida los campos del usuario 
+
 
 export function validarCampos(camposRequeridos){
     return (req,res,next) => {
@@ -31,7 +31,7 @@ export function validarCampos(camposRequeridos){
     }
 }
 
-// Middleware par manejo de errores mediante wrap
+
 export const asynHandler = (fn) => 
     (req,res,next) => 
         fn(req,res,next).catch(next);

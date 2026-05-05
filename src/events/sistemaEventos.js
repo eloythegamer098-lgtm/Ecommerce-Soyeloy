@@ -1,4 +1,3 @@
-//Event Emmiter es modulo nativo
 import { EventEmitter } from "events";
 class SistemaEventos extends EventEmitter {
     constructor() {

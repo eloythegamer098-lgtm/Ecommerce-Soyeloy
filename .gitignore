@@ -5,3 +5,7 @@
 ../node_modules
 ./vscode
 node_modules
+
+.env
+bd
+test_bdd.js

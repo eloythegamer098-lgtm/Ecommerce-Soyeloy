@@ -1,17 +1,32 @@
 import { Router } from "express";
 import {eventos } from "../events/sistemaEventos.js"
 import { validarCampos, asynHandler } from "../middlewares/avanzado.js";
+import pool from '../bd/connection.js'
+import bcrypt from 'bcryptjs'
 
 const router = Router();
-
-let usuarios = [];
 
 router.post("/registro",
 validarCampos(["nombre","email","password"]),
 asynHandler(async (req,res) => {
-    const {nombre,email} = req.body;
-    const nuevoUsuario = {id:Date.now(),nombre,email}
-    usuarios.push(nuevoUsuario);
+    const {nombre,email,password} = req.body;
+
+    const[usuariosPrevios] = await pool.query("SELECT id FROM usuarios WHERE email = ?",[email]);
+    if(usuariosPrevios.length > 0){
+        return res.status(409).json({
+            error:'Email ya esta registrado'
+        });
+    }
+
+    const hashPassword = await bcrypt.hash(password, 12);
+
+    const [resultado]= await pool.query(
+        "INSERT INTO usuarios(nombre,email,password) VALUES (?,?,?)",
+        [nombre,email,hashPassword]
+    );
+
+
+    const nuevoUsuario = {id:resultado.insertId,nombre,email}
     eventos.emit("usuario:registrado",nuevoUsuario)
     res.status(201).json({
         mensaje:"Registro exitoso",datos:nuevoUsuario
