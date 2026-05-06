@@ -1,10 +1,11 @@
+import 'dotenv/config'
 import express from 'express';
 import authRoutes from './routes/auth.js';
 import { loggerDetallado } from './middlewares/avanzado.js';
 import sistemEventos from './events/sistemaEventos.js';
 const app = express();
 
-const Port = process.env.Port || 3000;
+const Port = process.env.Port;
 
 
 app.use(express.json());

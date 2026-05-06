@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
 
 export const verifyToken = (req,res,next) => {
-    const authHeader = req.authHeader['autorization'];
+    const authHeader = req.headers['authorization'];
 
-    if(!authHeader || !authHeader.startWith('Bearer')){
+    if(!authHeader || !authHeader.startsWith('Bearer')){
         return res.status(401).json({
             error:'Denegado.Token no proporcionado o es invalido'
 
