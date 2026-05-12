@@ -39,3 +39,18 @@ export const actualizarProducto = async(req,res) => {
     );
     res.json({mensaje:"Producto actualizado exitosamente",id});
 }
+
+//Delete
+export const eliminarProducto = async(req,res) =>{
+    const {id} = req.params;
+    if(!id){
+        return res.status(400).json({error:"El id es obligatorio"});
+    }
+    await pool.query(
+        "DELETE FROM productos WHERE id=?",
+        [id]
+    );
+    res.json({mensaje:"Producto eliminado exitosamente",id}
+    )
+
+}

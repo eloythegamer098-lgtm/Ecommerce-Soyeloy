@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { obtenerProductos,crearProducto } from "../controllers/productos_controller.js";
+import { obtenerProductos,crearProducto,actualizarProducto,eliminarProducto } from "../controllers/productos_controller.js";
 import { validarCampos, asynHandler } from "../middlewares/avanzado.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
 
@@ -13,9 +13,8 @@ validarCampos(["categoria_id","nombre","descripcion","precio","stock"]),
 asynHandler(crearProducto)
 )
 
-router.put("/:id",asynHandler((req,res) => {
-    res.json({message:"Producto actualizado"});
-}))
+router.put("/:id",asynHandler(actualizarProducto));
+router.delete("/:id",asynHandler(eliminarProducto));
 
 
 export default router;

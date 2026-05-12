@@ -5,6 +5,7 @@ import { loggerDetallado } from './middlewares/avanzado.js';
 import sistemEventos from './events/sistemaEventos.js';
 import productoRoutes from './routes/producto.js';
 import categoriasRoutes from './routes/categoria.js'
+import pedidosRoutes from './routes/pedidos.js';
 const app = express();
 
 const Port = process.env.Port;
@@ -16,7 +17,8 @@ app.use(loggerDetallado);
 
 app.use("/api/v1/auth",authRoutes);
 app.use("/api/v1/productos", productoRoutes);
-app.use("/api/v1/categorias",categoriasRoutes)
+app.use("/api/v1/categorias",categoriasRoutes);
+app.use("/api/v1/pedidos",pedidosRoutes);
 
 app.use((err,req,res,next) => {
     console.error(`${err.message}`);
