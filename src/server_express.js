@@ -3,16 +3,20 @@ import express from 'express';
 import authRoutes from './routes/auth.js';
 import { loggerDetallado } from './middlewares/avanzado.js';
 import sistemEventos from './events/sistemaEventos.js';
+import productoRoutes from './routes/producto.js';
+import categoriasRoutes from './routes/categoria.js'
 const app = express();
 
 const Port = process.env.Port;
+
 
 
 app.use(express.json());
 app.use(loggerDetallado);
 
 app.use("/api/v1/auth",authRoutes);
-
+app.use("/api/v1/productos", productoRoutes);
+app.use("/api/v1/categorias",categoriasRoutes)
 
 app.use((err,req,res,next) => {
     console.error(`${err.message}`);
