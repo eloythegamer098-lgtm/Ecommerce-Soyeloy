@@ -59,3 +59,24 @@ export const obtenerPedidos = async(req,res) => {
         data : pedidos
     });
 } 
+
+//Get ver el detalle exacto del pedido
+export const obtenerDetallePedido = async (req,res) => {
+    const {id} = req.params;
+
+    const[pedido] = await pool.query("Select * from pedidos WHERE id = ?",[id]);
+
+    if(pedido.length === 0){
+        return res.status(404).json({error : "Pedido no encontrado"});
+    }
+    const[detalles] = await pool.query(
+        "Select dp.id , dp.cantidad,dp.precio_unitario, p.nombre AS producto_nombre From detalle_pedido dp INNER JOIN productos p ON dp.producto_id = p.id WHERE dp.pedido_id = ?"
+        ,[id]      
+    );
+
+   
+    return res.status(200).json({"error":"Aqui mando el mensaje de respuesta"});
+   
+
+
+}
