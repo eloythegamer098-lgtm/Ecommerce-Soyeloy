@@ -3,9 +3,8 @@ export const CardProduct = ({ product }) => {
      
         <div className="card" >
            
-            <img style={{ width: "100%", height: "auto" }} src={product.image} alt={product.name} />
-            <h3 style={{textAlign : "center",color:"black",fontFamily:"TIMES NEW ROMAN"}}>{product.name}</h3>
-            <p style={{fontSize : 40,"color":"black"}}>${product.price.toFixed(2)}</p>
+            <h3 style={{textAlign : "center",color:"black",fontFamily:"TIMES NEW ROMAN"}}>{product.nombre}</h3>
+            <p style={{fontSize : 40,"color":"black"}}>${product.precio.toFixed(2)}</p>
 
 
             {/* Renderizado condicional para mostrar un mensaje si el producto está en oferta */}

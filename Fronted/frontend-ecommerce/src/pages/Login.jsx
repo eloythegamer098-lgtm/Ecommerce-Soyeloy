@@ -1,21 +1,54 @@
+import { useEffect } from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 
 export const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
-    const handleSubmit = (e) => {
+    const [mensajeExitoso, setMensajeExitoso] = useState("");
+    const [mensajeIncorrecto, setMensajeIncorrecto] = useState("");
+    const navigate = useNavigate();
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Aquí puedes agregar la lógica para manejar el inicio de sesión
-        console.log("Email:", email);
-        console.log("Password:", password);
-        alert("Inicio de sesión exitoso");
-    }
+        setMensajeExitoso("");
+        setMensajeIncorrecto("");
+
+
+        try {
+            const res = await fetch(`${import.meta.env.VITE_PUBLIC_URL}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                localStorage.setItem("token", data.token);
+                setMensajeExitoso("Login exitoso");
+                setTimeout(() => {
+                    navigate("/");
+                }, 2000);
+
+            } else {
+                console.error("Error en login", data.error);
+                setMensajeIncorrecto("Credenciales inválidas");
+
+            }
+
+        } catch (error) {
+            console.log("Error al inciar sesion", error);
+            setMensajeIncorrecto("Error de conexion al servidor");
+        }
+    };
+
+
     return (
         <div style={{ textAlign: "center" }}>
             <h1>Iniciar Sesión</h1>
+            {mensajeExitoso && <p style={{ color: "green" }}>{mensajeExitoso}</p>}
+            {mensajeIncorrecto && <p style={{ color: "red" }}>{mensajeIncorrecto}</p>}
+
             <form onSubmit={handleSubmit} style={{ display: "inline-block", textAlign: "left" }}>
                 <div style={{ marginBottom: "10px" }}>
                     <label>Email:</label><br />

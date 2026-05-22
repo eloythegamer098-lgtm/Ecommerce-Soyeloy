@@ -8,6 +8,7 @@ export const MainLayout = () => {
         <Link to="/" style={{color:"white",marginLeft:"20px"}}>Home</Link>
         <Link to="/contacto" style={{color:"white",marginLeft:"20px"}}>Contacto</Link>
         <Link to="/productos" style={{color:"white",marginLeft:"20px"}}>Productos</Link>
+        <Link to="/categorias" style={{color:"white",marginLeft:"20px"}}>Categorias</Link>
         </nav>
         <main>
             <Outlet />

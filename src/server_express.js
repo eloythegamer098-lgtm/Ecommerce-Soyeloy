@@ -6,10 +6,16 @@ import sistemEventos from './events/sistemaEventos.js';
 import productoRoutes from './routes/producto.js';
 import categoriasRoutes from './routes/categoria.js'
 import pedidosRoutes from './routes/pedidos.js';
+import cors from 'cors';
 const app = express();
 
 const Port = process.env.Port;
 
+app.use(cors({
+    origin: 'http://localhost:5174',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 
 app.use(express.json());

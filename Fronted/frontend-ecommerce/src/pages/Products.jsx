@@ -1,25 +1,36 @@
 import { Link } from "react-router-dom";
-import { CardProduct } from "../components/CardProduct";
+import { CardProduct } from "../components/CardProduct.jsx";
 import { useState } from "react";
-const productos = [
-    { id: 1, name: 'Producto 1', price: 10.99, image: 'https://placehold.net/1.png', onSale: true, outOfStock: false },
-    { id: 2, name: 'Producto 2', price: 19.99, image: 'https://placehold.net/1.png', onSale: false, outOfStock: true },
-    { id: 3, name: 'Producto 3', price: 5.99, image: 'https://placehold.net/1.png', onSale: false, outOfStock: false },
-    { id: 4, name: 'Producto 4', price: 15.99, image: 'https://placehold.net/1.png', onSale: true, outOfStock: true },
-    { id: 5, name: 'Producto 5', price: 8.99, image: 'https://placehold.net/1.png', onSale: false, outOfStock: false },
-];
+import { useEffect } from "react";
 
 export const Productos = () => {
-    const[buscar,setBuscar] = useState("");
+    const [buscar, setBuscar] = useState("");
+    const [productos, setProductos] = useState([]);
 
-     const productosFiltrados = productos.filter((prod) =>
-        prod.name.toLowerCase().includes(buscar.toLowerCase())
+    useEffect(() => {
+        const fetchProductos = async () => {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_PUBLIC_URL}/productos`);
+                const data = await response.json();
+                setProductos(data.productos);
+                console.log("Productos obtenidos:", data.productos);
+            } catch (error) {
+                console.error("Error fetching productos:", error);
+            }
+        };
+
+        fetchProductos();
+    }, []);
+
+
+    const productosFiltrados = productos.filter((prod) =>
+        prod.nombre.toLowerCase().includes(buscar.toLowerCase())
     );
 
     return (
         <div style={{ textAlign: "center" }}>
             <h1>Productos</h1>
-            <input 
+            <input
                 type="text"
                 placeholder="Filtrar productos..."
                 value={buscar}
@@ -29,19 +40,24 @@ export const Productos = () => {
             <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
                 {productosFiltrados.map((prod) => (
                     <div key={prod.id} style={{ width: "200px" }}>
-                        <CardProduct product={prod} />
-                        <Link to={`/productos/${prod.id}`} style={{ color: "blue", fontSize: "18px" }}>
-                            <button style={{ padding: "10px 20px", marginTop: "20px" }}>
-                                Ver Detalles</button>
 
-                        </Link>
+                        <div>
+                            <h3>{prod.categoria}</h3>
+                            <h3>{prod.nombre}</h3>
+                            <h3>{prod.stock}</h3>
+                            <p>${prod.precio}</p>
+                            <p style={{ fontSize: 12, color: "gray" }}>{prod.descripcion}</p>
+
+                        </div>
+
+
                     </div>
-
                 ))}
+
+
+
             </div>
 
-
         </div>
-
-    )
+    );
 }
