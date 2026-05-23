@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { CardProduct } from "../components/CardProduct.jsx";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useEffect } from "react";
+import { ContextCart } from "../services/ContextCart.jsx";
 
 export const Productos = () => {
     const [buscar, setBuscar] = useState("");
     const [productos, setProductos] = useState([]);
+    const {agregarAlCarrito} = useContext(ContextCart);
 
     useEffect(() => {
         const fetchProductos = async () => {
@@ -47,7 +49,14 @@ export const Productos = () => {
                             <h3>{prod.stock}</h3>
                             <p>${prod.precio}</p>
                             <p style={{ fontSize: 12, color: "gray" }}>{prod.descripcion}</p>
+                            <button
+                            onClick={() => agregarAlCarrito(prod)}
+                            disabled={prod.stock === 0}
 
+                            >
+                                {prod.stock===0 ? "Agotado": "Agregar al Carrito"}
+                                
+                            </button>
                         </div>
 
 

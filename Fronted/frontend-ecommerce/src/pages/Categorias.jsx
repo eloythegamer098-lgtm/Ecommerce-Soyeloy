@@ -59,6 +59,32 @@ export const Categorias = () => {
         }
 
     }
+     const handleEliminar = async (id) => {
+        if(!window.confirm("Estas seguro de eliminar esta categoria")) return;
+
+        try {
+            const res = await fetch(`${import.meta.env.VITE_PUBLIC_URL}/categorias/eliminarCategoria/${id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    },
+                    body: JSON.stringify({ nombre: nuevaCategoria })
+                });
+            const data = await res.json();
+            if (res.ok) {
+                console.log("Categoria Eliminada");
+                obtenerCategorias();
+            }else{
+                console.log("Error al crear categoria",data.error);
+            }
+
+
+        }catch(error){
+            console.error("Error en el servidor",error);
+        }
+
+    }
 
 
     return (
@@ -82,6 +108,9 @@ export const Categorias = () => {
                 {categorias.map((cat) => (
                     <li key={cat.id}>
                         <h3>{cat.nombre}</h3>
+                        <button 
+                        onClick={() => handleEliminar(cat.id)}
+                        >ELIMINAR</button>
                     </li>
                 ))}
             </ul>

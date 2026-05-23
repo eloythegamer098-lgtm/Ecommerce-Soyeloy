@@ -14,9 +14,12 @@ import { DetalleProducto } from './pages/DetailtProduct.jsx'
 import { Login } from './pages/Login.jsx'
 import { Register } from './pages/Register.jsx'
 import { Categorias } from './pages/Categorias.jsx'
+import { Carrito } from './pages/Carrito.jsx'
+import {CartProvider} from './services/ContextCart.jsx'
 function App() {
 
   return (
+    <CartProvider>
     <BrowserRouter>
     <Routes>
       <Route path='/' element={<Navigate to="/Login" replace />} />
@@ -29,10 +32,14 @@ function App() {
         <Route path='/productos' element={<Productos />} />
         <Route path='/productos/:id' element={<DetalleProducto />} />
         <Route path='/categorias' element={<Categorias />}/>
+        <Route path='/carrito' element={<Carrito />}/>
+
+
         <Route path="/*" element={<NotFound />} />
       </Route>
     </Routes>
     </BrowserRouter>
+    </CartProvider>
    
   )
 }
