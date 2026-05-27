@@ -16,6 +16,7 @@ import { Register } from './pages/Register.jsx'
 import { Categorias } from './pages/Categorias.jsx'
 import { Carrito } from './pages/Carrito.jsx'
 import {CartProvider} from './services/ContextCart.jsx'
+import { AdminProductos } from './pages/AdminProductos.jsx'
 function App() {
 
   return (
@@ -32,6 +33,8 @@ function App() {
         <Route path='/productos' element={<Productos />} />
         <Route path='/productos/:id' element={<DetalleProducto />} />
         <Route path='/categorias' element={<Categorias />}/>
+        <Route path='/adminProductos' element={<AdminProductos />}/>
+
         <Route path='/carrito' element={<Carrito />}/>
 
 
