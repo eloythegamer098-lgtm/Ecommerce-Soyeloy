@@ -3,12 +3,23 @@ import pool from "../bd/connection.js";
 //Get
 export const obtenerProductos = async(req,res) => {
     const[row]= await pool.query('SELECT p.id, p.nombre,p.descripcion,p.precio,p.stock,c.nombre AS categoria FROM productos p INNER JOIN categorias c ON p.categoria_id = c.id'
-
-        
     );
     res.json({total : row.length, productos:row});
 
+}
 
+//Get by Id
+
+export const obtenerProductosbyId = async(req,res) => {
+    const {id} = req.params;
+
+    const[rows] = await pool.query("SELECT p.id, p.nombre,p.descripcion,p.precio,p.stock,c.nombre AS categoria FROM productos p INNER JOIN categorias c ON p.categoria_id = c.id WHERE p.id = ?",[id]);
+
+    if(rows.length===0){
+        return res.status(404).json({error: "Producto no Encontrado"});
+
+    }
+    res.json(rows[0]);
 }
 
 //Post 

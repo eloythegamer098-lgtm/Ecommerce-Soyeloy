@@ -57,6 +57,11 @@ export const Productos = () => {
                                 {prod.stock===0 ? "Agotado": "Agregar al Carrito"}
                                 
                             </button>
+                            <Link to={`/productos/${prod.id}`}>
+                            <button>
+                                Ver Detalles
+                            </button>
+                            </Link>
                         </div>
 
 

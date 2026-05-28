@@ -1,30 +1,45 @@
-import { useParams,Link } from "react-router-dom";
+import { useState,useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 
-const productos = [
-    {id: 1, name: 'Producto 1', price: 10.99, image: 'https://placehold.net/1.png' , onSale: true, outOfStock: false},
-    {id: 2, name: 'Producto 2', price: 19.99, image: 'https://placehold.net/1.png', onSale: false, outOfStock: true},
-    {id: 3, name: 'Producto 3', price: 5.99, image: 'https://placehold.net/1.png', onSale: false, outOfStock: false},
-    {id: 4, name: 'Producto 4', price: 15.99, image: 'https://placehold.net/1.png', onSale: true, outOfStock: true},
-    {id: 5, name: 'Producto 5', price: 8.99, image: 'https://placehold.net/1.png', onSale: false, outOfStock: false},
-  ];
-
-  export const DetalleProducto = () => {
+export const DetalleProducto = () => {
     const { id } = useParams();
+    const [producto, setProducto] = useState(null);
 
-    const productoEncontrado = productos.find((prod) => prod.id === parseInt(id));
+    const fetchProductos = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_PUBLIC_URL}/productos/${id}`);
+            if (response.ok) {
+                console.log("Producto Encontrado");
+                const data = await response.json();
+                setProducto(data);
 
-    if (!productoEncontrado) {
-        return <div style={{textAlign:"center"}}><h2>Producto no encontrado</h2></div>;
+
+            } else {
+                console.log("Producto No Encontrado");
+            }
+
+
+        } catch (error) {
+            console.log("Error en el serivdor", error);
+        }
     }
 
+     useEffect(() => {
+        fetchProductos();
+    }, [id]);
+
+
+    if(!producto) return <h2>Producto no encontrado</h2>
     return (
-        <div style={{textAlign:"center"}}>
-            <h1>{productoEncontrado.name}</h1>
-            <img style={{ width: "300px", height: "auto" }} src={productoEncontrado.image} alt={productoEncontrado.name} />
-            <p style={{fontSize : 40,"color":"black"}}>${productoEncontrado.price.toFixed(2)}</p>   
-            <Link to="/productos" style={{color:"blue",fontSize:"18px"}}>
-            <button style={{padding:"10px 20px",marginTop:"20px"}}>
-            Volver a Productos</button>
+        <div style={{ textAlign: "center" }}>
+            <h1>{producto.nombre}</h1>
+            <p style={{ fontSize: 40, "color": "black" }}>${producto.precio}</p>
+            <p>{producto.descripcion}</p>
+            <p>Stock: {producto.stock}</p>
+            <p>Categoria : {producto.categoria}</p>
+            <Link to="/productos" style={{ color: "blue", fontSize: "18px" }}>
+                <button style={{ padding: "10px 20px", marginTop: "20px" }}>
+                    Volver a Productos</button>
             </Link>
         </div>
     )

@@ -17,6 +17,7 @@ import { Categorias } from './pages/Categorias.jsx'
 import { Carrito } from './pages/Carrito.jsx'
 import {CartProvider} from './services/ContextCart.jsx'
 import { AdminProductos } from './pages/AdminProductos.jsx'
+import { MisPedidos } from './pages/MisPedidos.jsx'
 function App() {
 
   return (
@@ -35,6 +36,7 @@ function App() {
         <Route path='/categorias' element={<Categorias />}/>
         <Route path='/adminProductos' element={<AdminProductos />}/>
 
+        <Route path='/mispedidos' element={<MisPedidos />}/>
         <Route path='/carrito' element={<Carrito />}/>
 
 
