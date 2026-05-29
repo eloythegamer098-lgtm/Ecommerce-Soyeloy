@@ -6,6 +6,7 @@ import sistemEventos from './events/sistemaEventos.js';
 import productoRoutes from './routes/producto.js';
 import categoriasRoutes from './routes/categoria.js'
 import pedidosRoutes from './routes/pedidos.js';
+import botRoutes from './routes/bot.js';
 import cors from 'cors';
 const app = express();
 
@@ -25,7 +26,7 @@ app.use("/api/v1/auth",authRoutes);
 app.use("/api/v1/productos", productoRoutes);
 app.use("/api/v1/categorias",categoriasRoutes);
 app.use("/api/v1/pedidos",pedidosRoutes);
-
+app.use("/api/v1/bot",botRoutes);
 app.use((err,req,res,next) => {
     console.error(`${err.message}`);
     res.status(500).json({error:"Algo salio mal"});

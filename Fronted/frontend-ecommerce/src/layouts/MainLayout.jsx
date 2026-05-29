@@ -15,6 +15,7 @@ export const MainLayout = () => {
         <Link to="/productos" style={{color:"white",marginLeft:"20px"}}>Productos</Link>
         <Link to="/categorias" style={{color:"white",marginLeft:"20px"}}>Categorias</Link>
         <Link to="/adminProductos" style={{color:"white",marginLeft:"20px"}}>Crud Productos</Link>
+        <Link to="/chatbot" style={{color:"white",marginLeft:"20px"}}>Bot</Link>
         <Link to="/carrito" style={{color:"white",marginLeft:"20px"}}>Carrito({cantidadItems})
         </Link>
 
