@@ -1,6 +1,7 @@
 import {Outlet,Link} from "react-router-dom";
 import { ContextCart } from "../services/ContextCart";
 import { useContext } from "react";
+import { ChatBot } from "../pages/Chatbot";
 
 export const MainLayout = () => {
     const {carrito} = useContext(ContextCart);
@@ -15,7 +16,6 @@ export const MainLayout = () => {
         <Link to="/productos" style={{color:"white",marginLeft:"20px"}}>Productos</Link>
         <Link to="/categorias" style={{color:"white",marginLeft:"20px"}}>Categorias</Link>
         <Link to="/adminProductos" style={{color:"white",marginLeft:"20px"}}>Crud Productos</Link>
-        <Link to="/chatbot" style={{color:"white",marginLeft:"20px"}}>Bot</Link>
         <Link to="/carrito" style={{color:"white",marginLeft:"20px"}}>Carrito({cantidadItems})
         </Link>
 
@@ -23,6 +23,7 @@ export const MainLayout = () => {
         <main>
             <Outlet />
         </main>
+        <ChatBot />
     </div>
     )
 }

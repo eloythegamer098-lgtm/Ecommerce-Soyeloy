@@ -18,7 +18,7 @@ import { Carrito } from './pages/Carrito.jsx'
 import {CartProvider} from './services/ContextCart.jsx'
 import { AdminProductos } from './pages/AdminProductos.jsx'
 import { MisPedidos } from './pages/MisPedidos.jsx'
-import { ChatBot } from './pages/Chatbot.jsx'
+
 function App() {
 
   return (
@@ -37,7 +37,6 @@ function App() {
         <Route path='/categorias' element={<Categorias />}/>
         <Route path='/adminProductos' element={<AdminProductos />}/>
         <Route path='/mispedidos' element={<MisPedidos />}/>
-        <Route path='/chatbot' element={<ChatBot />}/>
         <Route path='/carrito' element={<Carrito />}/>
 
 
