@@ -1,19 +1,23 @@
-import { useEffect } from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+import "../styles/Login.css";
 
 export const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [mensajeExitoso, setMensajeExitoso] = useState("");
     const [mensajeIncorrecto, setMensajeIncorrecto] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    // Use a tech-themed stock video from a CDN for the demonstration
+    const videoSource = "https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-loop-with-glowing-lines-41221-large.mp4";
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMensajeExitoso("");
         setMensajeIncorrecto("");
-
+        setLoading(true);
 
         try {
             const res = await fetch(`${import.meta.env.VITE_PUBLIC_URL}/auth/login`, {
@@ -25,68 +29,102 @@ export const Login = () => {
 
             if (res.ok) {
                 localStorage.setItem("token", data.token);
-                setMensajeExitoso("Login exitoso");
+                setMensajeExitoso("ACCESO CONCEDIDO");
                 setTimeout(() => {
                     navigate("/");
-                }, 2000);
-
+                }, 1500);
             } else {
-                console.error("Error en login", data.error);
-                setMensajeIncorrecto("Credenciales inválidas");
-
+                setMensajeIncorrecto("ERROR DE AUTENTICACIÓN");
             }
-
         } catch (error) {
-            console.log("Error al inciar sesion", error);
-            setMensajeIncorrecto("Error de conexion al servidor");
+            setMensajeIncorrecto("ERROR DE SISTEMA");
+        } finally {
+            setLoading(false);
         }
     };
 
-
     return (
-        <div style={{ textAlign: "center" }}>
-            <h1>Iniciar Sesión</h1>
-            {mensajeExitoso && <p style={{ color: "green" }}>{mensajeExitoso}</p>}
-            {mensajeIncorrecto && <p style={{ color: "red" }}>{mensajeIncorrecto}</p>}
+        <div className="login-container">
+            {/* Background Video */}
+            <video 
+                autoPlay 
+                muted 
+                loop 
+                className="video-bg"
+                playsInline
+            >
+                <source src={videoSource} type="video/mp4" />
+            </video>
+            <div className="overlay"></div>
 
-            <form onSubmit={handleSubmit} style={{ display: "inline-block", textAlign: "left" }}>
-                <div style={{ marginBottom: "10px" }}>
-                    <label>Email:</label><br />
-                    <input
-                        type="email"
-                        value={email}
-                        required
-                        onChange={(e) => setEmail(e.target.value)}
-                        style={{ padding: "10px", width: "300px" }}
-                    />
-                </div>
-                <div style={{ marginBottom: "10px" }}>
-                    <label>Password:</label><br />
-                    <input
-                        type="password"
-                        value={password}
-                        required
-                        onChange={(e) => setPassword(e.target.value)}
-                        style={{ padding: "10px", width: "300px" }}
-                    />
-                </div>
-                <button type="submit" style={{ padding: "10px 20px", marginTop: "10px" }}>Login</button>
-                <Link to="/Register">
+            <div className="login-card">
+                <header className="login-header">
+                    <h1>Tech Auth</h1>
+                    <p>Terminal de Acceso Seguro</p>
+                </header>
 
-                    <button style={{ padding: "10px 20px", marginTop: "10px" }}>
+                {mensajeExitoso && (
+                    <div className="message success">
+                        {mensajeExitoso}
+                    </div>
+                )}
+                
+                {mensajeIncorrecto && (
+                    <div className="message error">
+                        {mensajeIncorrecto}
+                    </div>
+                )}
 
-                        Registrarse</button>
-                </Link>
-                <Link to="/" >
-                    <button style={{ padding: "10px 20px", marginTop: "10px", background: "gray", color: "white", borderRadius: "5px" }}>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>Identificador / Email</label>
+                        <input
+                            type="email"
+                            value={email}
+                            required
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="login-input"
+                            placeholder="admin@tech.com"
+                        />
+                    </div>
 
-                        Regresar al Inicio
+                    <div className="form-group">
+                        <label>Protocolo / Contraseña</label>
+                        <input
+                            type="password"
+                            value={password}
+                            required
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="login-input"
+                            placeholder="••••••••"
+                        />
+                    </div>
 
+                    <button 
+                        type="submit" 
+                        className="btn btn-primary"
+                        disabled={loading}
+                    >
+                        {loading ? "Sincronizando..." : "Iniciar Sesión"}
                     </button>
-                </Link>
-            </form>
 
+                    <div className="divider">
+                        <span>Registro de Usuario</span>
+                    </div>
 
+                    <Link to="/Register" style={{ textDecoration: 'none' }}>
+                        <button type="button" className="btn btn-secondary">
+                            Crear Nueva Cuenta
+                        </button>
+                    </Link>
+
+                    <Link to="/" className="back-link">
+                        [ Regresar al Sistema ]
+                    </Link>
+                </form>
+            </div>
         </div>
-    )
-}  
+    );
+};
+
+  

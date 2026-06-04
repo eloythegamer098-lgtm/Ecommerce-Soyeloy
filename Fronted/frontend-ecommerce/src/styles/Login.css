@@ -1,0 +1,224 @@
+.login-container {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* Video Background Styles */
+.video-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  filter: brightness(0.4) contrast(1.2) saturate(0.8);
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, transparent 0%, var(--bg-primary) 100%);
+  z-index: -1;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 450px;
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+  border-radius: 4px; /* Brutalist/Tech sharp edges */
+  padding: 48px;
+  box-shadow: 0 0 40px var(--accent-glow);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Corner Accents for Tech Feel */
+.login-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border-top: 2px solid var(--accent);
+  border-left: 2px solid var(--accent);
+}
+
+.login-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-bottom: 2px solid var(--accent);
+  border-right: 2px solid var(--accent);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.login-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 10px var(--accent-glow);
+  margin-bottom: 12px;
+}
+
+.login-header p {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.message {
+  padding: 12px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 24px;
+  border-left: 4px solid transparent;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.message.success {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.message.error {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.login-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  border-radius: 0;
+  padding: 14px;
+  color: white;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: rgba(6, 182, 212, 0.05);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.btn {
+  width: 100%;
+  padding: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  clip-path: polygon(0 0, 100% 0, 100% 75%, 90% 100%, 0 100%);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg-primary);
+}
+
+.btn-primary:hover {
+  background: #22d3ee;
+  transform: translateX(4px);
+  box-shadow: -4px 0 0 white;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  margin-top: 16px;
+}
+
+.btn-secondary:hover {
+  background: var(--accent-glow);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 30px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(6, 182, 212, 0.2);
+}
+
+.divider span {
+  padding: 0 15px;
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 24px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.back-link:hover {
+  color: var(--accent);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 30px 20px;
+    border-radius: 0;
+    max-width: 100%;
+  }
+  
+  .login-header h1 {
+    font-size: 1.5rem;
+  }
+}

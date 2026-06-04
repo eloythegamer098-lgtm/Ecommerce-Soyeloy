@@ -1,0 +1,226 @@
+.products-container {
+  min-height: 100vh;
+  background-color: #121212; /* Spotify Dark Background */
+  color: #ffffff;
+  padding: 40px 20px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.products-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.products-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 24px;
+  letter-spacing: -0.04em;
+}
+
+/* Spotify-style Search Bar */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #121212;
+  width: 24px;
+  height: 24px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 14px 16px 14px 48px;
+  border-radius: 500px; /* Fully rounded pill shape */
+  border: none;
+  background-color: #ffffff;
+  color: #121212;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+.search-input::placeholder {
+  color: #555555;
+}
+
+/* Grid Layout for Products */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Product Card - Spotify Style */
+.product-card {
+  background-color: #181818;
+  border-radius: 8px;
+  padding: 16px;
+  transition: background-color 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  background-color: #282828;
+}
+
+/* Placeholder for Image */
+.product-image-placeholder {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: linear-gradient(135deg, #333333, #1e1e1e);
+  border-radius: 6px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.product-icon {
+  width: 48px;
+  height: 48px;
+  color: #b3b3b3;
+}
+
+/* Floating Action Button (Like Spotify Play Button) */
+.add-to-cart-fab {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #1DB954; /* Spotify Green */
+  color: #000000;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 8px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.product-card:hover .add-to-cart-fab {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.add-to-cart-fab:hover {
+  background-color: #1ED760;
+  transform: scale(1.05);
+}
+
+.add-to-cart-fab:active {
+  transform: scale(1);
+}
+
+.add-to-cart-fab:disabled {
+  background-color: #555555;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* Typography */
+.product-category {
+  font-size: 0.75rem;
+  color: #b3b3b3;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.product-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-description {
+  font-size: 0.85rem;
+  color: #b3b3b3;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+  flex-grow: 1;
+}
+
+.product-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.product-price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.product-stock {
+  font-size: 0.75rem;
+  color: #b3b3b3;
+}
+
+.product-stock.out-of-stock {
+  color: #e22134;
+}
+
+.details-link {
+  text-decoration: none;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.btn-details {
+  width: 100%;
+  padding: 8px 16px;
+  border-radius: 500px;
+  border: 1px solid #727272;
+  background: transparent;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-details:hover {
+  border-color: #ffffff;
+  transform: scale(1.02);
+}
