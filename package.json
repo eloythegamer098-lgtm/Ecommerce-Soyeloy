@@ -1,5 +1,18 @@
 {
-	"dependencies": {
-		"dotenv": "^17.4.2"
-	}
+  "name": "neon-store-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd src && npm install && cd ../Fronted/frontend-ecommerce && npm install",
+    "build:frontend": "cd Fronted/frontend-ecommerce && npm run build",
+    "build:all": "npm run build:frontend",
+    "start:backend": "cd src && npm start",
+    "dev:backend": "cd src && npm run dev",
+    "dev:frontend": "cd Fronted/frontend-ecommerce && npm run dev",
+    "prod": "cross-env NODE_ENV=production node src/server_express.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3"
+  }
 }
