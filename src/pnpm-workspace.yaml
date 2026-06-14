@@ -1,4 +1,0 @@
-allowBuilds:
-  '@google/genai': false
-  bcrypt: false
-  protobufjs: false
