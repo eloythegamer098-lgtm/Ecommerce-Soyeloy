@@ -1,20 +1,49 @@
 import pool from "../bd/connection.js";
+import { registrarAuditoria } from "../services/auditService.js";
 
 
 //POST REALIZAR PEDIDO
 export const realizarPedido = async(req,res) => {
-    const{carrito} = req.body;
+    const{carrito, cupon_id} = req.body;
     const usuario_id = req.usuario.id;
-    let total = 0;
+    let subtotal = 0;
+    let descuento = 0;
 
     const conexion = await pool.getConnection();
 
     try{
         await conexion.beginTransaction();
-        carrito.forEach(item => total += (item.precio * item.cantidad));
+        
+        // Calcular subtotal
+        carrito.forEach(item => subtotal += (item.precio * item.cantidad));
+
+        // Aplicar cupón si existe
+        if (cupon_id) {
+            const [cupones] = await conexion.query(
+                "SELECT * FROM cupones WHERE id = ? AND activo = 1 AND expira_at > NOW() AND usos_actuales < limite_uso",
+                [cupon_id]
+            );
+
+            if (cupones.length > 0) {
+                const cupon = cupones[0];
+                if (cupon.tipo === 'porcentaje') {
+                    descuento = (subtotal * cupon.valor) / 100;
+                } else {
+                    descuento = cupon.valor;
+                }
+                // Asegurar que el descuento no sea mayor al subtotal
+                descuento = Math.min(descuento, subtotal);
+
+                // Incrementar usos del cupón
+                await conexion.query("UPDATE cupones SET usos_actuales = usos_actuales + 1 WHERE id = ?", [cupon_id]);
+            }
+        }
+
+        const total = subtotal - descuento;
+
         const[resPedido] = await conexion.query(
-            "INSERT INTO pedidos (usuario_id,total,estado) VALUES (?,?,'pagado')",
-            [usuario_id,total]
+            "INSERT INTO pedidos (usuario_id, total, estado, cupon_id, descuento) VALUES (?, ?, 'pagado', ?, ?)",
+            [usuario_id, total, cupon_id || null, descuento]
         );
         const pedido_id = resPedido.insertId;
         for(const item of carrito){
@@ -31,11 +60,11 @@ export const realizarPedido = async(req,res) => {
             }
         }
         await conexion.commit();
-        res.status(201).json({mensaje:"Pedido creado exitosamente",pedido_id});
+        res.status(201).json({mensaje:"Pedido creado exitosamente", pedido_id, total, descuento});
 
     }catch(error){
         await conexion.rollback();
-        res.status(500).json({error:"Error al procesar el pedido"});
+        res.status(500).json({error: error.message || "Error al procesar el pedido"});
     }
     finally{
         conexion.release();
@@ -43,40 +72,90 @@ export const realizarPedido = async(req,res) => {
 }
 
 
-//GET OBTENER PEDIDOS DE UN USUARIO
+//GET OBTENER PEDIDOS DE UN USUARIO (CLIENTE)
 export const obtenerPedidos = async(req,res) => {
-    const limit = parseInt(req.query.limit) || 10;
-    const page = parseInt(req.query.page) || 1;
-    const offset = (page - 1 ) *limit;
-  
-    const [pedidos] = await pool.query(
-        "Select id,usuario_id,total,estado FROM pedidos LIMIT ? OFFSET ?",
-        [limit, offset]
-    );
-    res.json({
-        pagina_actual: page,
-        limite: limit,
-        data : pedidos
-    });
+    const usuario_id = req.usuario.id;
+    try {
+        const [pedidos] = await pool.query(
+            "SELECT id, total, estado, creado_en FROM pedidos WHERE usuario_id = ? ORDER BY creado_en DESC",
+            [usuario_id]
+        );
+        res.json({ data: pedidos });
+    } catch (error) {
+        res.status(500).json({ error: "Error al obtener pedidos" });
+    }
 } 
 
-//Get ver el detalle exacto del pedido
+// GET OBTENER TODOS LOS PEDIDOS (ADMIN)
+export const listarTodosLosPedidos = async (req, res) => {
+    try {
+        const [pedidos] = await pool.query(`
+            SELECT p.id, p.total, p.estado, p.creado_en, u.nombre as usuario_nombre, u.email as usuario_email 
+            FROM pedidos p 
+            INNER JOIN usuarios u ON p.usuario_id = u.id 
+            ORDER BY p.creado_en DESC
+        `);
+        res.json({ data: pedidos });
+    } catch (error) {
+        res.status(500).json({ error: "Error al obtener todos los pedidos" });
+    }
+};
+
+// PUT ACTUALIZAR ESTADO DEL PEDIDO (ADMIN)
+export const actualizarEstadoPedido = async (req, res) => {
+    const { id } = req.params;
+    const { estado } = req.body;
+    const estadosValidos = ['pendiente', 'pagado', 'preparando', 'enviado', 'entregado', 'cancelado'];
+
+    if (!estadosValidos.includes(estado)) {
+        return res.status(400).json({ error: "Estado no válido" });
+    }
+
+    try {
+        const [resultado] = await pool.query("UPDATE pedidos SET estado = ? WHERE id = ?", [estado, id]);
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({ error: "Pedido no encontrado" });
+        }
+
+        // Auditoría
+        await registrarAuditoria(req.usuario.id, 'ACTUALIZAR_ESTADO_PEDIDO', 'pedidos', id, { nuevo_estado: estado });
+
+        res.json({ mensaje: "Estado del pedido actualizado" });
+    } catch (error) {
+        res.status(500).json({ error: "Error al actualizar estado del pedido" });
+    }
+};
+
+//Get ver el detalle exacto del pedido (CLIENTE Y ADMIN)
 export const obtenerDetallePedido = async (req,res) => {
     const {id} = req.params;
 
-    const[pedido] = await pool.query("Select * from pedidos WHERE id = ?",[id]);
+    try {
+        const[pedido] = await pool.query(`
+            SELECT p.*, u.nombre as usuario_nombre, u.email as usuario_email 
+            FROM pedidos p 
+            INNER JOIN usuarios u ON p.usuario_id = u.id 
+            WHERE p.id = ?`, [id]);
 
-    if(pedido.length === 0){
-        return res.status(404).json({error : "Pedido no encontrado"});
+        if(pedido.length === 0){
+            return res.status(404).json({error : "Pedido no encontrado"});
+        }
+
+        // Seguridad: Si no es admin, solo puede ver sus propios pedidos
+        if (req.usuario.rol !== 'admin' && pedido[0].usuario_id !== req.usuario.id) {
+            return res.status(403).json({ error: "No tienes permiso para ver este pedido" });
+        }
+
+        const[detalles] = await pool.query(
+            "Select dp.id , dp.cantidad,dp.precio_unitario, p.nombre AS producto_nombre From detalle_pedido dp INNER JOIN productos p ON dp.producto_id = p.id WHERE dp.pedido_id = ?"
+            ,[id]      
+        );
+
+        res.json({
+            pedido: pedido[0],
+            detalles: detalles
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Error al obtener detalle del pedido" });
     }
-    const[detalles] = await pool.query(
-        "Select dp.id , dp.cantidad,dp.precio_unitario, p.nombre AS producto_nombre From detalle_pedido dp INNER JOIN productos p ON dp.producto_id = p.id WHERE dp.pedido_id = ?"
-        ,[id]      
-    );
-
-   
-    return res.status(200).json({"error":"Aqui mando el mensaje de respuesta"});
-   
-
-
 }

@@ -1,4 +1,5 @@
 import pool from "../bd/connection.js";
+import { registrarAuditoria } from "../services/auditService.js";
 
 //Get
 export const obtenerCategorias = async(req,res) => {
@@ -18,14 +19,18 @@ export const crearCategoria = async(req,res) => {
         "INSERT INTO categorias(nombre) VALUES (?)",
         [nombre]
     );
+
+    // Auditoría
+    await registrarAuditoria(req.usuario.id, 'CREAR_CATEGORIA', 'categorias', resultado.insertId, { nombre });
+
     res.status(201).json({mensaje:"Categoria creada exitosamente",id:resultado.insertId});
 }
 
 //put de categoria usando como parametro el id de la categoria a actualizar y en el body el nombre y el campo activa para actualizar la categoria
 export const actualizarCategoria = async(req,res) => {
     const {id} = req.params;
-    const {nombre} = req.body;
-    const {activa} = req.body;
+    const {nombre, activa} = req.body;
+    
     if(!nombre){
         return res.status(400).json({error:"El nombre es obligatorio"});
     }
@@ -36,6 +41,10 @@ export const actualizarCategoria = async(req,res) => {
         "UPDATE categorias SET nombre=?,activa=? WHERE id=?",
         [nombre,activa,id]
     );
+
+    // Auditoría
+    await registrarAuditoria(req.usuario.id, 'ACTUALIZAR_CATEGORIA', 'categorias', id, { nombre, activa });
+
     res.json({mensaje:"Categoria actualizada exitosamente",id});
 }
 
@@ -50,6 +59,10 @@ export const eliminarCategoria = async(req,res) =>{
         if(resultado.affectedRows === 0){
             return res.status(404).json({error:"Categoria no encontrada"});
         }
+
+        // Auditoría
+        await registrarAuditoria(req.usuario.id, 'ELIMINAR_CATEGORIA', 'categorias', id);
+
         res.json({mensaje:"Categoria eliminada exitosamente",id});
     }
     catch(error){

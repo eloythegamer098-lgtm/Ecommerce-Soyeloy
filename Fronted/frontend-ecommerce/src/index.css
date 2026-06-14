@@ -1,15 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
 :root {
-  --bg-primary: #020617; /* Deepest blue/black */
-  --bg-secondary: #0f172a;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --accent: #06b6d4; /* Tech Cyan */
-  --accent-glow: rgba(6, 182, 212, 0.3);
-  --error: #f43f5e;
-  --success: #10b981;
-  --card-bg: rgba(15, 23, 42, 0.7);
-  --card-border: rgba(6, 182, 212, 0.2);
-  --font-main: 'Orbitron', 'Inter', system-ui, sans-serif;
+  --gaming-green: #22c55e;
+  --gaming-purple: #a855f7;
+  --gaming-orange: #f97316;
+  --gaming-black: #020617;
+  --gaming-dark: #0f172a;
+  --gaming-glass: rgba(15, 23, 42, 0.7);
+  --gaming-border: rgba(255, 255, 255, 0.1);
+  --font-gaming: 'Orbitron', sans-serif;
+  --font-body: 'Rajdhani', sans-serif;
+  --neon-glow-green: 0 0 15px rgba(34, 197, 94, 0.3);
+  --neon-glow-purple: 0 0 15px rgba(168, 85, 247, 0.3);
+  --neon-glow-orange: 0 0 15px rgba(249, 115, 22, 0.3);
 }
 
 * {
@@ -19,16 +22,92 @@
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.5;
+  font-family: var(--font-body);
+  background-color: var(--gaming-black);
+  color: #fff;
+  line-height: 1.6;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* Base styles for tech feel */
-h1, h2, h3, .tech-font {
-  font-family: 'Orbitron', sans-serif;
-  letter-spacing: 0.1em;
+h1, h2, h3, h4, h5, h6, .tech-font {
+  font-family: var(--font-gaming);
   text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Global Background Atmosphere */
+.global-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bg-sphere {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.1;
+  animation: pulseSphere 15s infinite alternate;
+}
+
+.sphere-1 { width: 600px; height: 600px; background: var(--gaming-green); top: -100px; right: -100px; }
+.sphere-2 { width: 500px; height: 500px; background: var(--gaming-purple); bottom: -100px; left: -100px; animation-delay: -5s; }
+.sphere-3 { width: 400px; height: 400px; background: var(--gaming-orange); top: 40%; left: 30%; animation-delay: -10s; }
+
+@keyframes pulseSphere {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.3) translate(100px, 50px); }
+}
+
+.global-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: var(--gaming-glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--gaming-border);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--gaming-black);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gaming-dark);
+  border-radius: 10px;
+  border: 2px solid var(--gaming-black);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gaming-green);
+}
+
+/* Button Reset */
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
 }
