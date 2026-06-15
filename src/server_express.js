@@ -111,14 +111,15 @@ console.log('✅ CORS configurado con orígenes:', allowedOrigins);
 app.use(loggerDetallado);
 
 // 2. Seguridad con Helmet y Compresión
-app.use(helmet({
-    contentSecurityPolicy: false,
-    referrerPolicy: { policy: 'same-origin' },
-    xssFilter: true,
-    noSniff: true,
-    hidePoweredBy: true
-}));
-
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'OK',
+        version: 'CORS_FIX_2026_06_15',
+        uptime: process.uptime(),
+        timestamp: new Date(),
+        allowedOrigins
+    });
+});
 app.use(compression());
 
 // 3. Parsers
