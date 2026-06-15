@@ -9,7 +9,9 @@
     "start:backend": "cd src && npm start",
     "dev:backend": "cd src && npm run dev",
     "dev:frontend": "cd Fronted/frontend-ecommerce && npm run dev",
-    "prod": "cross-env NODE_ENV=production node src/server_express.js"
+    "deploy:setup": "cd src && node init_db.js",
+    "prod": "cross-env NODE_ENV=production node src/server_express.js",
+    "start:prod": "cd src && cross-env NODE_ENV=production node server_express.js"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

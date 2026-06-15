@@ -1,5 +1,12 @@
 import winston from 'winston';
 import path from 'path';
+import fs from 'fs';
+
+// Asegurar que existe el directorio de logs
+const logDir = 'logs';
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir);
+}
 
 // Configuración de niveles y colores
 const levels = {

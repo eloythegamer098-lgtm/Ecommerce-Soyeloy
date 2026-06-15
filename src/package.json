@@ -1,7 +1,8 @@
 {
   "scripts": {
     "start": "node server_express.js",
-    "dev": "nodemon server_express.js"
+    "dev": "nodemon server_express.js",
+    "start:prod": "cross-env NODE_ENV=production node server_express.js"
   },
   "type": "module",
   "engines": {

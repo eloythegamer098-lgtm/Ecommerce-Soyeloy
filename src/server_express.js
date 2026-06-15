@@ -1,4 +1,9 @@
 import 'dotenv/config';
+import { validateEnv } from './validate_env.js';
+
+// Validar entorno antes de arrancar
+validateEnv();
+
 import express from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -101,10 +106,6 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', uptime: process.uptime(), timestamp: new Date() });
 });
 
-app.get('/', (req, res) => {
-    res.send('<h1>Servidor Express (Neon Store API) funcionando correctamente</h1>');
-});
-
 // 7. Registro de rutas API v1
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/productos", productoRoutes);
@@ -119,6 +120,21 @@ app.use("/api/v1/valoraciones", valoracionesRoutes);
 app.use("/api/v1/cupones", cuponesRoutes);
 app.use("/api/v1/auditoria", auditoriaRoutes);
 app.use("/api/v1/configuracion", configuracionRoutes);
+
+// --- INTEGRACIÓN DEL FRONTEND ---
+// Servir archivos estáticos del frontend construido
+const frontendPath = path.join(__dirname, '../Fronted/frontend-ecommerce/dist');
+app.use(express.static(frontendPath));
+
+// Soporte para Single Page Application (SPA): Redirigir rutas no-API a index.html
+app.get('*', (req, res, next) => {
+    // Si la ruta empieza con /api, no servir el frontend (dejar que pase al error 404 o rutas API)
+    if (req.path.startsWith('/api')) {
+        return next();
+    }
+    res.sendFile(path.join(frontendPath, 'index.html'));
+});
+// --------------------------------
 
 // 8. Manejo de 404 (Rutas no encontradas)
 app.use((req, res) => {
