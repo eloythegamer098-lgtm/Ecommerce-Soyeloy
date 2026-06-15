@@ -124,7 +124,7 @@ app.use("/api/v1/configuracion", configuracionRoutes);
 if (process.env.NODE_ENV === 'production') {
     const frontendPath = path.join(__dirname, '../Fronted/frontend-ecommerce/dist');
     app.use(express.static(frontendPath));
-    app.get('*', (req, res) => {
+    app.get('(.*)', (req, res) => {
         if (!req.path.startsWith('/api/')) {
             res.sendFile(path.join(frontendPath, 'index.html'));
         }
