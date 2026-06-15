@@ -35,40 +35,90 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configuración para proxy (Heroku, Vercel, Nginx, etc.)
+// Configuración para proxy en producción
 if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', 1);
 }
 
-// 1. Logging y CORS
-app.use(loggerDetallado);
+// =====================================================
+// CORS DEFINITIVO - DEBE IR ANTES DE TODO
+// =====================================================
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-    ? process.env.ALLOWED_ORIGINS.split(',') 
-    : ['http://localhost:5173'];
+const defaultOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://ecommerce-soyeloy-production.up.railway.app'
+];
 
-app.use(cors({
-    origin: (origin, callback) => {
-        // Permitir peticiones sin origen (como apps móviles o curl)
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('No permitido por CORS'));
+const envOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS
+        .split(',')
+        .map(origin => origin.trim())
+        .filter(Boolean)
+    : [];
+
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
+
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+
+    if (!origin || allowedOrigins.includes(origin)) {
+        if (origin) {
+            res.setHeader('Access-Control-Allow-Origin', origin);
         }
+
+        res.setHeader('Vary', 'Origin');
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    } else {
+        console.log('❌ CORS bloqueado para origen:', origin);
+        console.log('✅ Orígenes permitidos:', allowedOrigins);
+    }
+
+    // Responder preflight OPTIONS antes de llegar a rutas, rate limit o helmet
+    if (req.method === 'OPTIONS') {
+        return res.status(204).end();
+    }
+
+    next();
+});
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        console.log('❌ CORS bloqueado por middleware cors:', origin);
+        return callback(null, false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+
+console.log('✅ CORS configurado con orígenes:', allowedOrigins);
+
+// =====================================================
+// FIN CORS
+// =====================================================
+
+// 1. Logging
+app.use(loggerDetallado);
 
 // 2. Seguridad con Helmet y Compresión
 app.use(helmet({
-    contentSecurityPolicy: false, // Ajustar si se sirven assets externos
+    contentSecurityPolicy: false,
     referrerPolicy: { policy: 'same-origin' },
     xssFilter: true,
     noSniff: true,
     hidePoweredBy: true
 }));
+
 app.use(compression());
 
 // 3. Parsers
@@ -78,7 +128,7 @@ app.use(cookieParser());
 // 4. Rate Limit Global
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 1000, // Aumentado para producción
+    max: 1000,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Límite de tráfico excedido para esta IP." }
@@ -101,9 +151,13 @@ app.use("/api/v1/auth/login", strictLimiter);
 app.use("/api/v1/auth/forgot-password", strictLimiter);
 app.use("/api/v1/auth/registro", strictLimiter);
 
-// 6. Rutas de salud y base
+// 6. Ruta de salud
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'OK', uptime: process.uptime(), timestamp: new Date() });
+    res.status(200).json({
+        status: 'OK',
+        uptime: process.uptime(),
+        timestamp: new Date()
+    });
 });
 
 // 7. Registro de rutas API v1
@@ -121,22 +175,21 @@ app.use("/api/v1/cupones", cuponesRoutes);
 app.use("/api/v1/auditoria", auditoriaRoutes);
 app.use("/api/v1/configuracion", configuracionRoutes);
 
-// --- INTEGRACIÓN DEL FRONTEND ---
-// Servir archivos estáticos del frontend construido
+// 8. Integración del frontend
 const frontendPath = path.join(__dirname, '../Fronted/frontend-ecommerce/dist');
+
 app.use(express.static(frontendPath));
 
-// Soporte para Single Page Application (SPA): Redirigir rutas no-API a index.html
-app.get('*', (req, res, next) => {
-    // Si la ruta empieza con /api, no servir el frontend (dejar que pase al error 404 o rutas API)
+// Soporte para Single Page Application en Express 5
+app.get('/{*splat}', (req, res, next) => {
     if (req.path.startsWith('/api')) {
         return next();
     }
+
     res.sendFile(path.join(frontendPath, 'index.html'));
 });
-// --------------------------------
 
-// 8. Manejo de 404 (Rutas no encontradas)
+// 9. Manejo de 404
 app.use((req, res) => {
     res.status(404).json({
         error: "Ruta no encontrada",
@@ -144,8 +197,7 @@ app.use((req, res) => {
     });
 });
 
-// 9. Manejo global de errores
-
+// 10. Manejo global de errores
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
 
@@ -166,20 +218,19 @@ app.use((err, req, res, next) => {
     });
 });
 
-// 10. Inicio del servidor
-const server = app.listen(PORT, "0.0.0.0", () => {
+// 11. Inicio del servidor
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`[SERVER] Mode: ${process.env.NODE_ENV || 'development'}`);
     console.log(`[SERVER] Port: ${PORT}`);
-    console.log(`[SERVER] URL: http://localhost:${PORT}`);
+    console.log(`[SERVER] URL local: http://localhost:${PORT}`);
 });
 
-// Capturar errores fatales que cierran el proceso
+// Capturar errores fatales
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('❌ ERROR FATAL (Rechazo no manejado):', reason);
+    console.error('❌ ERROR FATAL - Rechazo no manejado:', reason);
 });
 
 process.on('uncaughtException', (err) => {
-    console.error('❌ ERROR FATAL (Excepción no capturada):', err);
+    console.error('❌ ERROR FATAL - Excepción no capturada:', err);
     process.exit(1);
 });
-
