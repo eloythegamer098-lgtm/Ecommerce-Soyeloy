@@ -120,18 +120,7 @@ app.use("/api/v1/cupones", cuponesRoutes);
 app.use("/api/v1/auditoria", auditoriaRoutes);
 app.use("/api/v1/configuracion", configuracionRoutes);
 
-// 8. Servir Frontend en Producción
-if (process.env.NODE_ENV === 'production') {
-    const frontendPath = path.join(__dirname, '../Fronted/frontend-ecommerce/dist');
-    app.use(express.static(frontendPath));
-    app.get('/:path*', (req, res) => {
-        if (!req.path.startsWith('/api/')) {
-            res.sendFile(path.join(frontendPath, 'index.html'));
-        }
-    });
-}
-
-// 9. Manejo de rutas no encontradas
+// 8. Manejo de 404 (Rutas no encontradas)
 app.use((req, res) => {
     res.status(404).json({
         error: "Ruta no encontrada",
@@ -139,22 +128,18 @@ app.use((req, res) => {
     });
 });
 
-// 10. Manejo global de errores
+// 9. Manejo global de errores
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
-
     const message = process.env.NODE_ENV === 'production'
         ? "Ha ocurrido un error interno en el servidor"
         : err.message;
 
-    if (process.env.NODE_ENV !== 'production' || statusCode === 500) {
-        console.error("========== ERROR ==========");
-        console.error("Request ID:", req.requestId || "N/A");
-        console.error("Ruta:", req.originalUrl);
-        console.error("Método:", req.method);
-        console.error("Error:", err.stack || err.message);
-        console.error("===========================");
-    }
+    console.error("========== ERROR GLOBAL ==========");
+    console.error("Ruta:", req.originalUrl);
+    console.error("Método:", req.method);
+    console.error("Error:", err.stack || err.message);
+    console.error("==================================");
 
     res.status(statusCode).json({
         error: message,
@@ -162,7 +147,7 @@ app.use((err, req, res, next) => {
     });
 });
 
-// 11. Inicio del servidor
+// 10. Inicio del servidor
 app.listen(PORT, () => {
     console.log(`[SERVER] Mode: ${process.env.NODE_ENV || 'development'}`);
     console.log(`[SERVER] Port: ${PORT}`);
