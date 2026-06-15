@@ -129,27 +129,41 @@ app.use((req, res) => {
 });
 
 // 9. Manejo global de errores
+
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
-    const message = process.env.NODE_ENV === 'production'
-        ? "Ha ocurrido un error interno en el servidor"
-        : err.message;
 
     console.error("========== ERROR GLOBAL ==========");
     console.error("Ruta:", req.originalUrl);
     console.error("Método:", req.method);
-    console.error("Error:", err.stack || err.message);
+    console.error("Mensaje:", err.message);
+    console.error("Código:", err.code);
+    console.error("SQL:", err.sql);
+    console.error("Stack:", err.stack);
     console.error("==================================");
 
     res.status(statusCode).json({
-        error: message,
+        error: "Error interno del servidor",
+        detalle: err.message,
+        codigo: err.code || null,
         requestId: req.requestId || null
     });
 });
 
 // 10. Inicio del servidor
-app.listen(PORT, () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
     console.log(`[SERVER] Mode: ${process.env.NODE_ENV || 'development'}`);
     console.log(`[SERVER] Port: ${PORT}`);
     console.log(`[SERVER] URL: http://localhost:${PORT}`);
 });
+
+// Capturar errores fatales que cierran el proceso
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ ERROR FATAL (Rechazo no manejado):', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('❌ ERROR FATAL (Excepción no capturada):', err);
+    process.exit(1);
+});
+
