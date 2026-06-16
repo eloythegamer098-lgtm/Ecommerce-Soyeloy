@@ -40,87 +40,77 @@ if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', 1);
 }
 
-// =====================================================
-// CORS DEFINITIVO - DEBE IR ANTES DE TODO
-// =====================================================
+// 1. LOGGING (PRIMERO PARA VER TODAS LAS PETICIONES)
+app.use(loggerDetallado);
 
+// 2. CONFIGURACIÓN DE CORS PROFESIONAL
 const defaultOrigins = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'https://ecommerce-soyeloy-production.up.railway.app'
 ];
 
+// Limpieza profunda de variables de entorno (quita comillas, espacios y barras finales)
 const envOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS
-        .split(',')
-        .map(origin => origin.trim())
+    ? process.env.ALLOWED_ORIGINS.split(',')
+        .map(o => o.trim().replace(/['"]/g, '').replace(/\/$/, ""))
         .filter(Boolean)
     : [];
 
 const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-
-    if (!origin || allowedOrigins.includes(origin)) {
-        if (origin) {
-            res.setHeader('Access-Control-Allow-Origin', origin);
-        }
-
-        res.setHeader('Vary', 'Origin');
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-    } else {
-        console.log('❌ CORS bloqueado para origen:', origin);
-        console.log('✅ Orígenes permitidos:', allowedOrigins);
-    }
-
-    // Responder preflight OPTIONS antes de llegar a rutas, rate limit o helmet
-    if (req.method === 'OPTIONS') {
-        return res.status(204).end();
-    }
-
-    next();
-});
-
 const corsOptions = {
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        // Permitir sin origen (Postman, etc)
+        if (!origin) return callback(null, true);
+        
+        const cleanOrigin = origin.trim().replace(/\/$/, "");
+        if (allowedOrigins.some(o => o.replace(/\/$/, "") === cleanOrigin)) {
             return callback(null, true);
         }
 
-        console.log('❌ CORS bloqueado por middleware cors:', origin);
-        return callback(null, false);
+        console.error(`❌ CORS BLOQUEADO: ${origin}`);
+        console.error(`✅ PERMITIDOS:`, allowedOrigins);
+        return callback(new Error('No permitido por CORS'));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: [
+        'Content-Type', 
+        'Authorization', 
+        'X-Requested-With', 
+        'Accept', 
+        'Origin',
+        'Cache-Control',
+        'Pragma'
+    ],
     optionsSuccessStatus: 204
 };
 
+// Manejar Preflight OPTIONS de forma global y explícita
+app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 
-console.log('✅ CORS configurado con orígenes:', allowedOrigins);
+console.log('🚀 CORS configurado con éxito:', allowedOrigins);
 
-// =====================================================
-// FIN CORS
-// =====================================================
+// 3. SEGURIDAD Y COMPRESIÓN
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    referrerPolicy: { policy: 'no-referrer' }
+}));
+app.use(compression());
 
-// 1. Logging
-app.use(loggerDetallado);
-
-// 2. Seguridad con Helmet y Compresión
+// 4. HEALTH CHECK CON DEBUG DE CORS
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'OK',
-        version: 'CORS_FIX_2026_06_15',
-        uptime: process.uptime(),
-        timestamp: new Date(),
-        allowedOrigins
+        version: 'CORS_FIX_V3_FINAL',
+        allowedOrigins,
+        env_raw: process.env.ALLOWED_ORIGINS || 'NOT_SET',
+        timestamp: new Date()
     });
 });
-app.use(compression());
 
 // 3. Parsers
 app.use(express.json({ limit: '10kb' }));
@@ -151,15 +141,6 @@ const strictLimiter = rateLimit({
 app.use("/api/v1/auth/login", strictLimiter);
 app.use("/api/v1/auth/forgot-password", strictLimiter);
 app.use("/api/v1/auth/registro", strictLimiter);
-
-// 6. Ruta de salud
-app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'OK',
-        uptime: process.uptime(),
-        timestamp: new Date()
-    });
-});
 
 // 7. Registro de rutas API v1
 app.use("/api/v1/auth", authRoutes);
